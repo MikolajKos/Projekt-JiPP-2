@@ -25,11 +25,20 @@ target_include_directories(JiPP_project_app PUBLIC
     ${CMAKE_SOURCE_DIR}/src/data
 )
 
-# FTXUI
-add_subdirectory(include/ftxui)
+# FTXUI - pobieranie przez FetchContent
+include(FetchContent)
+set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
+FetchContent_Declare(ftxui
+  GIT_REPOSITORY https://github.com/ArthurSonzogni/ftxui
+  GIT_TAG main # Możesz podać konkretny commit, jeżeli chcesz
+)
+FetchContent_MakeAvailable(ftxui)
 
-# Linkowanie
+# Linkowanie z FTXUI
 target_link_libraries(JiPP_project_app
     JiPP_project_smartArray
     component
+    ftxui::screen
+    ftxui::dom
+    ftxui::component
 )
