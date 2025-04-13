@@ -5,22 +5,30 @@
 #include <SmartArray.h>
 #include <ftxui\component\screen_interactive.hpp>
 #include <ftxui\component\component.hpp>
+#include "Tui.h"
 
 using namespace ftxui;
 
 int main() {
-    auto screen = ScreenInteractive::Fullscreen();
-    Component closeButton = Button("Close", screen.ExitLoopClosure());
+    Tui tui;
+    tui.run();
 
-    Component renderer = Renderer(closeButton, [&] {
-        return vbox({
-        text("Hello World!"),
-        closeButton->Render()
-            });
-        });
 
-    screen.Loop(renderer);
+
     return 0;
+
+    //auto screen = ScreenInteractive::Fullscreen();
+    //Component closeButton = Button("Close", screen.ExitLoopClosure());
+
+    //Component renderer = Renderer(closeButton, [&] {
+    //    return vbox({
+    //    text("Hello World!"),
+    //    closeButton->Render()
+    //        });
+    //    });
+
+    //screen.Loop(renderer);
+    //return 0;
     
     //Student student1("Jan", "Kowalski", 20, 12345, 4.5);
     //Student student2("Anna", "Nowak", 22, 67890, 4.8);

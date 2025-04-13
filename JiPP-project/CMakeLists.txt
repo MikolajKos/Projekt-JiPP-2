@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 20)
 add_library(JiPP_project_smartArray
     src/smartArray/SmartArray.cpp
     src/data/Student.cpp
-)
+ )
 
 # Ścieżki do nagłówków
 target_include_directories(JiPP_project_smartArray PUBLIC
@@ -18,6 +18,8 @@ target_include_directories(JiPP_project_smartArray PUBLIC
 # Plik wykonywalny
 add_executable(JiPP_project_app
     src/app/main.cpp
+    src/app/Tui.cpp 
+    src/app/Tui.h
 )
 
 target_include_directories(JiPP_project_app PUBLIC
