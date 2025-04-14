@@ -13,6 +13,7 @@ class Tui {
 		"Show hello world",
 		"Add student",
 		"Delete student",
+		"Edit student",
 		"Print all students",
 		"Exit"
 	};
@@ -22,6 +23,7 @@ class Tui {
 		HelloWordldScreen = 0,
 		ShowInput,
 		DeleteStudent,
+		EditStudent,
 		ShowScrollable,
 		Exit
 	};
@@ -34,11 +36,10 @@ class Tui {
 	Color inputBgColor(bool isValid);
 	void showAllStudentsScreen();
 	void removeStudentScreen();
+	void editStudentScreen();
 
 public:
-	Tui(SmartArray<Student>& students) : smartArray(students) {}
-	
-	void dispStudents();
+	Tui(SmartArray<Student>& students) : smartArray(students) {};
 
 	void run();
 

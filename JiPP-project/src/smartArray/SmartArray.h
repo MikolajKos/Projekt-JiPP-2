@@ -48,10 +48,6 @@ public:
         return data_[index];
     }
 
-    T operator[](unsigned index) {
-        return data_[index];
-    }
-
     bool isEmpty() const {
         return size_ == 0;
     }
@@ -149,6 +145,20 @@ public:
             }
         }
         return true;
+    }
+
+    T& operator[](unsigned index) {
+        if (index >= size_) {
+            throw std::out_of_range("Index out of range");
+        }
+        return data_[index];
+    }
+
+    const T& operator[](unsigned index) const {
+        if (index >= size_) {
+            throw std::out_of_range("Index out of range");
+        }
+        return data_[index];
     }
 };
 

@@ -228,6 +228,138 @@ void Tui::removeStudentScreen()
     activeScreen = MenuScreen;
 }
 
+void Tui::editStudentScreen()
+{
+    Component backButton = Button("Back", screen.ExitLoopClosure());
+    Component editButton;
+
+    std::string indexStr, name, lastname, ageStr, gradeStr;
+    int indexNumber = 0, age = 0;
+    double finalGrade = 0.0;
+
+    bool indexValid = false, ageValid = false, gradeValid = false;
+    bool studentFound = false;
+
+    // Input validation for fields
+    InputOption indexOption, ageOption, gradeOption;
+
+    // Index input validation
+    indexOption.on_change = [&] {
+        try {
+            indexNumber = std::stoi(indexStr);
+            indexValid = true;
+        }
+        catch (...) {
+            indexValid = false;
+        }
+        };
+
+    // Age input validation
+    ageOption.on_change = [&] {
+        try {
+            if (!ageStr.empty()) {  // Validate only if the age is provided
+                age = std::stoi(ageStr);
+                ageValid = true;
+            }
+            else {
+                ageValid = true; // Empty field is valid
+            }
+        }
+        catch (...) {
+            ageValid = false;
+        }
+        };
+
+    // Final grade input validation
+    gradeOption.on_change = [&] {
+        try {
+            if (!gradeStr.empty()) { // Validate only if the grade is provided
+                finalGrade = std::stod(gradeStr);
+                gradeValid = true;
+            }
+            else {
+                gradeValid = true; // Empty field is valid
+            }
+        }
+        catch (...) {
+            gradeValid = false;
+        }
+        };
+
+    // Input components
+    Component indexInput = Input(&indexStr, indexOption);
+    Component nameInput = Input(&name);
+    Component lastnameInput = Input(&lastname);
+    Component ageInput = Input(&ageStr, ageOption);
+    Component gradeInput = Input(&gradeStr, gradeOption);
+
+    // Block non-digit input where needed
+    ageInput |= CatchEvent([&](Event e) {
+        return e.is_character() && !std::isdigit(e.character()[0]);
+        });
+
+    gradeInput |= CatchEvent([&](Event e) {
+        return e.is_character() && !(std::isdigit(e.character()[0]) || e.character() == ".");
+        });
+
+    // Edit button
+    editButton = Button("Edit Student", [&] {
+        if (indexValid) {
+            // Search for the student
+            for (unsigned i = 0; i < smartArray.size(); ++i) {
+                if (smartArray[i].indexNumber == indexNumber) {
+                    // Student found, update their data
+                    smartArray[i].name = name.empty() ? smartArray[i].name : name;
+                    smartArray[i].lastName = lastname.empty() ? smartArray[i].lastName : lastname;
+                    if (!ageStr.empty()) smartArray[i].age = age; // Only update if age is provided
+                    if (!gradeStr.empty()) smartArray[i].finalGrade = finalGrade; // Only update if grade is provided
+
+                    studentFound = true;
+                    break;
+                }
+            }
+        }
+        });
+
+    Component navigation = Container::Vertical({
+        indexInput,
+        nameInput,
+        lastnameInput,
+        ageInput,
+        gradeInput,
+        editButton,
+        backButton
+        });
+
+    Component renderer = Renderer(navigation, [&] {
+        std::vector<Element> elements = {
+            hbox({text("Enter Index Number to Edit: "), indexInput->Render()}),
+            hbox({text("Name: "), nameInput->Render()}),
+            hbox({text("Last Name: "), lastnameInput->Render()}),
+            hbox({text("Age: "), ageInput->Render()}) | bgcolor(inputBgColor(ageValid)),
+            hbox({text("Final Grade: "), gradeInput->Render()}) | bgcolor(inputBgColor(gradeValid)),
+            separator(),
+            hbox({editButton->Render()})
+        };
+
+        if (studentFound) {
+            elements.push_back(text("Student successfully updated."));
+        }
+        else if (indexValid && !studentFound) {
+            elements.push_back(text("No student found with the given index."));
+        }
+
+        elements.push_back(separator());
+        elements.push_back(hbox({ filler(), backButton->Render(), filler() }));
+
+        return vbox(elements);
+        });
+
+    screen.Loop(renderer);
+    activeScreen = MenuScreen;
+}
+
+
 
 Color Tui::inputBgColor(bool isValid)
 {
@@ -295,6 +427,9 @@ void Tui::run()
 			break;
         case Tui::DeleteStudent:
             removeStudentScreen();
+            break;
+        case Tui::EditStudent:
+            editStudentScreen();
             break;
 		default:
 			std::cout << "Unknown screen" << std::endl;
