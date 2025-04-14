@@ -32,99 +32,202 @@ void Tui::showHelloWorldScreen()
 
 void Tui::showInputScreen()
 {
-	Component backButton = Button("Back", screen.ExitLoopClosure());
+    Component backButton = Button("Back", screen.ExitLoopClosure());
+    Component addButton;
 
-	std::string name;
-	std::string lastname;
-	std::string ageStr;
-	std::string indexStr;
-	std::string gradeStr;
+    std::string name, lastname, ageStr, indexStr, gradeStr;
+    int age = 0;
+    int indexNumber = 0;
+    double finalGrade = 0.0;
 
-	bool inputsValid = false;
-	std::string confirmationText = "";
+    bool ageValid = false, indexValid = false, gradeValid = false;
+    bool showStudent = false;
+    Student newStudent;
 
-	InputOption validateInputs;
-	validateInputs.on_change = [&] {
-		try {
-			std::stoi(ageStr);
-			std::stoi(indexStr);
-			std::stod(gradeStr);
-			inputsValid = true;
-		}
-		catch (...) {
-			inputsValid = false;
-		}
-		};
+    // Input validation
+    InputOption ageOption, indexOption, gradeOption;
 
-	Component nameInput = Input(&name, "Name");
-	Component lastnameInput = Input(&lastname, "Last Name");
-	Component ageInput = Input(&ageStr, "Age", validateInputs);
-	Component indexInput = Input(&indexStr, "Index Number", validateInputs);
-	Component gradeInput = Input(&gradeStr, "Final Grade", validateInputs);
+    ageOption.on_change = [&] {
+        try {
+            age = std::stoi(ageStr);
+            ageValid = true;
+        }
+        catch (...) {
+            ageValid = false;
+        }
+        };
 
-	ageInput |= CatchEvent([&](Event e) {
-		return e.is_character() && !std::isdigit(e.character()[0]);
-		});
-	indexInput |= CatchEvent([&](Event e) {
-		return e.is_character() && !std::isdigit(e.character()[0]);
-		});
-	gradeInput |= CatchEvent([&](Event e) {
-		return false; // Allow decimal point
-		});
+    indexOption.on_change = [&] {
+        try {
+            indexNumber = std::stoi(indexStr);
+            indexValid = true;
+        }
+        catch (...) {
+            indexValid = false;
+        }
+        };
 
-	Component addButton = Button("Add", [&] {
-		if (inputsValid) {
-			Student newStudent(
-				name,
-				lastname,
-				std::stoi(ageStr),
-				std::stoi(indexStr),
-				std::stod(gradeStr)
-			);
+    gradeOption.on_change = [&] {
+        try {
+            finalGrade = std::stod(gradeStr);
+            gradeValid = true;
+        }
+        catch (...) {
+            gradeValid = false;
+        }
+        };
 
-			smartArray.pushBack(newStudent);
-			confirmationText = "Student added:\n" + newStudent.printStudent();
+    // Input components
+    Component nameInput = Input(&name);
+    Component lastnameInput = Input(&lastname);
+    Component ageInput = Input(&ageStr, ageOption);
+    Component indexInput = Input(&indexStr, indexOption);
+    Component gradeInput = Input(&gradeStr, gradeOption);
 
-			// Clear input fields
-			name.clear();
-			lastname.clear();
-			ageStr.clear();
-			indexStr.clear();
-			gradeStr.clear();
-		}
-		else {
-			confirmationText = "Invalid input. Please correct all fields.";
-		}
-		});
+    // Block non-digit input where needed
+    ageInput |= CatchEvent([&](Event e) {
+        return e.is_character() && !std::isdigit(e.character()[0]);
+        });
 
-	Component navigation = Container::Vertical({
-		nameInput,
-		lastnameInput,
-		ageInput,
-		indexInput,
-		gradeInput,
-		addButton,
-		backButton
-		});
+    indexInput |= CatchEvent([&](Event e) {
+        return e.is_character() && !std::isdigit(e.character()[0]);
+        });
 
-	Component renderer = Renderer(navigation, [&] {
-		return vbox({
-			hbox({ text("Name: "), nameInput->Render() }),
-			hbox({ text("Last Name: "), lastnameInput->Render() }),
-			hbox({ text("Age: "), ageInput->Render() }),
-			hbox({ text("Index Number: "), indexInput->Render() }),
-			hbox({ text("Final Grade: "), gradeInput->Render() }),
-			separator(),
-			text(confirmationText) | color(inputsValid ? Color::Green : Color::Red),
-			separator(),
-			hbox({ filler(), addButton->Render(), filler() }),
-			hbox({ filler(), backButton->Render(), filler() })
-			});
-		});
+    gradeInput |= CatchEvent([&](Event e) {
+        return e.is_character() && !(std::isdigit(e.character()[0]) || e.character() == ".");
+        });
 
-	screen.Loop(renderer);
-	activeScreen = MenuScreen;
+    // Add button
+    addButton = Button("Dodaj", [&] {
+        if (!name.empty() && !lastname.empty() && ageValid && indexValid && gradeValid) {
+            newStudent = Student(name, lastname, age, indexNumber, finalGrade);
+            smartArray.pushBack(newStudent);
+            showStudent = true;
+
+            // Reset inputs
+            name.clear();
+            lastname.clear();
+            ageStr.clear();
+            indexStr.clear();
+            gradeStr.clear();
+            ageValid = indexValid = gradeValid = false;
+        }
+        });
+
+    Component navigation = Container::Vertical({
+        nameInput,
+        lastnameInput,
+        ageInput,
+        indexInput,
+        gradeInput,
+        addButton,
+        backButton
+        });
+
+    Component renderer = Renderer(navigation, [&] {
+        std::vector<Element> elements = {
+            hbox({text("Name: "), nameInput->Render()}),
+            hbox({text("Last Name: "), lastnameInput->Render()}),
+            hbox({text("Age: "), ageInput->Render()}) | bgcolor(inputBgColor(ageValid)),
+            hbox({text("Index Number: "), indexInput->Render()}) | bgcolor(inputBgColor(indexValid)),
+            hbox({text("Final Grade: "), gradeInput->Render()}) | bgcolor(inputBgColor(gradeValid)),
+            separator(),
+            hbox({addButton->Render()}),
+        };
+
+        if (showStudent) {
+            elements.push_back(text("Dodano studenta:"));
+            elements.push_back(paragraph(newStudent.printStudent()));
+        }
+
+        elements.push_back(separator());
+        elements.push_back(hbox({ filler(), backButton->Render(), filler() }));
+
+        return vbox(elements);
+        });
+
+    screen.Loop(renderer);
+    activeScreen = MenuScreen;
 }
+
+void Tui::removeStudentScreen()
+{
+    Component backButton = Button("Back", screen.ExitLoopClosure());
+    Component removeButton;
+
+    std::string indexStr;
+    int indexNumber = 0;
+    bool indexValid = false;
+    bool studentRemoved = false;
+
+    // Input validation for index
+    InputOption indexOption;
+    indexOption.on_change = [&] {
+        try {
+            indexNumber = std::stoi(indexStr);
+            indexValid = true;
+        }
+        catch (...) {
+            indexValid = false;
+        }
+        };
+
+    Component indexInput = Input(&indexStr, indexOption);
+
+    // Remove button
+    removeButton = Button("Remove Student", [&] {
+        if (indexValid) {
+            bool found = false;
+            // Iterate over smartArray to find student by indexNumber
+            for (unsigned i = 0; i < smartArray.size(); ++i) {
+                if (smartArray[i].indexNumber == indexNumber) {
+                    smartArray.erase(i); // Remove student from SmartArray
+                    studentRemoved = true;
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                studentRemoved = false; // No student found with the given index
+            }
+
+            // Clear the input after removal attempt
+            indexStr.clear();
+            indexValid = false;
+        }
+        });
+
+    Component navigation = Container::Vertical({
+        indexInput,
+        removeButton,
+        backButton
+        });
+
+    Component renderer = Renderer(navigation, [&] {
+        std::vector<Element> elements = {
+            hbox({text("Enter Index Number to Remove: "), indexInput->Render()}),
+            separator(),
+            hbox({removeButton->Render()})
+        };
+
+        if (studentRemoved) {
+            elements.push_back(text("Student removed successfully."));
+        }
+        else if (!studentRemoved && !indexStr.empty()) {
+            elements.push_back(text("No student found with the given index."));
+        }
+
+        elements.push_back(separator());
+        elements.push_back(hbox({ filler(), backButton->Render(), filler() }));
+
+        return vbox(elements);
+        });
+
+    screen.Loop(renderer);
+    activeScreen = MenuScreen;
+}
+
 
 Color Tui::inputBgColor(bool isValid)
 {
@@ -190,6 +293,9 @@ void Tui::run()
 		case Tui::ShowScrollable:
 			showAllStudentsScreen();
 			break;
+        case Tui::DeleteStudent:
+            removeStudentScreen();
+            break;
 		default:
 			std::cout << "Unknown screen" << std::endl;
 			activeScreen = Exit;

@@ -11,7 +11,8 @@ class Tui {
 	ScreenInteractive screen = ScreenInteractive::Fullscreen();
 	std::vector<std::string> menuEntries = {
 		"Show hello world",
-		"Show input",
+		"Add student",
+		"Delete student",
 		"Print all students",
 		"Exit"
 	};
@@ -20,6 +21,7 @@ class Tui {
 		MenuScreen = -1,
 		HelloWordldScreen = 0,
 		ShowInput,
+		DeleteStudent,
 		ShowScrollable,
 		Exit
 	};
@@ -31,6 +33,7 @@ class Tui {
 	void showInputScreen();
 	Color inputBgColor(bool isValid);
 	void showAllStudentsScreen();
+	void removeStudentScreen();
 
 public:
 	Tui(SmartArray<Student>& students) : smartArray(students) {}

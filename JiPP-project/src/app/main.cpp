@@ -11,6 +11,7 @@
 using namespace ftxui;
 
 int main() {
+    // Default Students
     Student student1("Jan", "Kowalski", 20, 12345, 4.5);
     Student student2("Anna", "Nowak", 22, 67890, 4.8);
     Student student3("Mikolaj", "Kosiorek", 21, 155281, 5.0);
