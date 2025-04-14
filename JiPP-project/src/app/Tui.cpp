@@ -1,3 +1,4 @@
+#pragma once
 #include "Tui.h"
 #include <ftxui/component/component.hpp>
 #include <iostream>
@@ -27,11 +28,6 @@ void Tui::showHelloWorldScreen()
 
 	screen.Loop(renderer);
 	activeScreen = MenuScreen;
-}
-
-void Tui::showAllStudents()
-{
-
 }
 
 void Tui::showInputScreen()
@@ -94,22 +90,15 @@ Color Tui::inputBgColor(bool isValid)
 	return Color::Red;
 }
 
-void Tui::showScrollableScreen()
+void Tui::showAllStudentsScreen()
 {
 	Component backButton = Button("Back", screen.ExitLoopClosure());
-	
-	std::vector<std::string> name = {
-		"Anna", "Jan", "Katarzyna", "Piotr", "Maria", "Tomasz",
-		"Agnieszka", "Micha³", "Joanna", "Krzysztof", "Magdalena", "Pawe³",
-		"Ewa", "Adam", "Aleksandra", "Mateusz", "Natalia", "Marcin",
-		"Barbara", "£ukasz", "Julia", "Jakub", "Zofia", "Szymon",
-		"Karolina", "Grzegorz", "Monika", "Dawid", "Weronika", "Rafa³"
-	};
 
 	std::vector<Element> listOfElements;
 
-	for (int i = 0; i < name.size(); ++i) {
-		listOfElements.push_back(hbox({ text(std::to_string(i + 1) + ". "), text(name[i]) }));
+	for (int i = 0; i < smartArray.size(); ++i) {
+		listOfElements.push_back(hbox({ text(std::to_string(i + 1) + ". "), 
+			paragraph(smartArray[i].printStudent())}));
 	}
 
 	float scrollY = 0.1;
@@ -156,7 +145,7 @@ void Tui::run()
 			showInputScreen();
 			break;
 		case Tui::ShowScrollable:
-			showScrollableScreen();
+			showAllStudentsScreen();
 			break;
 		default:
 			std::cout << "Unknown screen" << std::endl;

@@ -1,1 +1,2 @@
-#include "Student.h"
+#pragma once
+#include <Student.h>

@@ -1,5 +1,7 @@
 #pragma once
 #include <ftxui/component/screen_interactive.hpp>
+#include <Student.h>
+#include <SmartArray.h>
 
 using namespace ftxui;
 
@@ -10,8 +12,7 @@ class Tui {
 	std::vector<std::string> menuEntries = {
 		"Show hello world",
 		"Show input",
-		"Show scrollable",
-		"Show all students",
+		"Print all students",
 		"Exit"
 	};
 
@@ -20,7 +21,6 @@ class Tui {
 		HelloWordldScreen = 0,
 		ShowInput,
 		ShowScrollable,
-		PrintStudents,
 		Exit
 	};
 
@@ -28,11 +28,17 @@ class Tui {
 
 	void showMenu();
 	void showHelloWorldScreen();
-	void showAllStudents();
 	void showInputScreen();
 	Color inputBgColor(bool isValid);
-	void showScrollableScreen();
+	void showAllStudentsScreen();
 
 public:
+	Tui(SmartArray<Student>& students) : smartArray(students) {}
+	
+	void dispStudents();
+
 	void run();
+
+private:
+	SmartArray<Student>& smartArray;
 };
