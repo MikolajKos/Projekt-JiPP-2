@@ -359,7 +359,21 @@ void Tui::editStudentScreen()
     activeScreen = MenuScreen;
 }
 
+void Tui::countStudentsScreen()
+{
+    Component backButton = Button("Back", screen.ExitLoopClosure());
 
+    Component renderer = Renderer(backButton, [&] {
+        return vbox({
+            text("Total number of students: " + std::to_string(smartArray.size())),
+            separator(),
+            hbox({ filler(), backButton->Render(), filler() })
+            });
+        });
+
+    screen.Loop(renderer);
+    activeScreen = MenuScreen;
+}
 
 Color Tui::inputBgColor(bool isValid)
 {
@@ -430,6 +444,9 @@ void Tui::run()
             break;
         case Tui::EditStudent:
             editStudentScreen();
+            break;        
+        case Tui::CountStudents:
+            countStudentsScreen();
             break;
 		default:
 			std::cout << "Unknown screen" << std::endl;

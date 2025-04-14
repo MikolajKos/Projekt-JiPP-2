@@ -15,6 +15,7 @@ class Tui {
 		"Delete student",
 		"Edit student",
 		"Print all students",
+		"Count all students",
 		"Exit"
 	};
 
@@ -25,6 +26,7 @@ class Tui {
 		DeleteStudent,
 		EditStudent,
 		ShowScrollable,
+		CountStudents,
 		Exit
 	};
 
@@ -37,6 +39,7 @@ class Tui {
 	void showAllStudentsScreen();
 	void removeStudentScreen();
 	void editStudentScreen();
+	void countStudentsScreen();
 
 public:
 	Tui(SmartArray<Student>& students) : smartArray(students) {};
