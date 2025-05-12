@@ -16,6 +16,8 @@ class Tui {
 		"Edit student",
 		"Print all students",
 		"Count all students",
+		"Save students",
+		"Load students",
 		"Exit"
 	};
 
@@ -27,6 +29,8 @@ class Tui {
 		EditStudent,
 		ShowScrollable,
 		CountStudents,
+		SaveToFile,
+		LoadFromFile,
 		Exit
 	};
 
@@ -40,6 +44,8 @@ class Tui {
 	void removeStudentScreen();
 	void editStudentScreen();
 	void countStudentsScreen();
+	void saveToFileScreen();
+	void loadFromFileScreen();
 
 public:
 	Tui(SmartArray<Student>& students) : smartArray(students) {};

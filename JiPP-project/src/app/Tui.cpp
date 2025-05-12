@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Tui.h"
 #include <ftxui/component/component.hpp>
 #include <iostream>
@@ -422,6 +422,96 @@ void Tui::showAllStudentsScreen()
 	activeScreen = MenuScreen;
 }
 
+void Tui::loadFromFileScreen() {
+    std::string filename;
+    bool loaded = false;
+
+    Component input = Input(&filename, "Filename (e.g., students.bin)");
+
+    Component loadButton = Button("Load", [&] {
+        try {
+            smartArray.loadFromFile(smartArray, filename);
+            loaded = true;
+        }
+        catch (const std::exception& e) {
+            loaded = false;
+        }
+        });
+
+    Component backButton = Button("Back", screen.ExitLoopClosure());
+
+    Component container = Container::Vertical({
+        input,
+        loadButton,
+        backButton
+        });
+
+    Component renderer = Renderer(container, [&] {
+        std::vector<Element> elements = {
+            hbox(text("Enter filename to load: "), input->Render()),
+            hbox({loadButton->Render()}),
+            separator()
+        };
+
+        if (loaded) {
+            elements.push_back(text("✔ Successfully loaded from file."));
+        }
+        else if (!filename.empty()) {
+            elements.push_back(text("✘ Failed to load. Check file name or contents."));
+        }
+
+        elements.push_back(hbox({ filler(), backButton->Render(), filler() }));
+        return vbox(elements);
+        });
+
+    screen.Loop(renderer);
+    activeScreen = MenuScreen;
+}
+
+void Tui::saveToFileScreen() {
+    std::string filename;
+    bool saved = false;
+
+    Component input = Input(&filename, "Filename (e.g., students.bin)");
+
+    Component saveButton = Button("Save", [&] {
+        try {
+            smartArray.saveToFile(smartArray, filename);
+            saved = true;
+        }
+        catch (const std::exception& e) {
+            saved = false;
+        }
+    });
+
+    Component backButton = Button("Back", screen.ExitLoopClosure());
+
+    Component container = Container::Vertical({
+        input,
+        saveButton,
+        backButton
+    });
+
+    Component renderer = Renderer(container, [&] {
+        std::vector<Element> elements = {
+            hbox(text("Enter filename to save: "), input->Render()),
+            hbox({saveButton->Render()}),
+            separator()
+        };
+
+        if (saved) {
+            elements.push_back(text("✔ Successfully saved to file."));
+        }
+
+        elements.push_back(hbox({ filler(), backButton->Render(), filler() }));
+        return vbox(elements);
+    });
+
+    screen.Loop(renderer);
+    activeScreen = MenuScreen;
+}
+
+
 void Tui::run()
 {
 	while (activeScreen != Exit) {
@@ -447,6 +537,12 @@ void Tui::run()
             break;        
         case Tui::CountStudents:
             countStudentsScreen();
+            break;
+        case Tui::SaveToFile:
+            saveToFileScreen();
+            break;
+        case Tui::LoadFromFile:
+            loadFromFileScreen();
             break;
 		default:
 			std::cout << "Unknown screen" << std::endl;

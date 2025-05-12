@@ -160,8 +160,41 @@ public:
         }
         return data_[index];
     }
+
+    template <typename T>
+    void saveToFile(const SmartArray<T>& arr, const std::string& filename) {
+        std::ofstream out(filename, std::ios::binary);
+        if (!out) throw std::runtime_error("Could not open file for writing");
+
+        unsigned size = arr.size();
+        out.write(reinterpret_cast<const char*>(&size), sizeof(size));
+
+        for (unsigned i = 0; i < size; ++i) {
+            serialize(out, arr[i]);
+        }
+
+        out.close();
+    }
+
+    template <typename T>
+    void loadFromFile(SmartArray<T>& arr, const std::string& filename) {
+        std::ifstream in(filename, std::ios::binary);
+        if (!in) throw std::runtime_error("Could not open file for reading");
+
+        unsigned size;
+        in.read(reinterpret_cast<char*>(&size), sizeof(size));
+
+        arr.clear();
+        arr.reserve(size);
+
+        for (unsigned i = 0; i < size; ++i) {
+            T value;
+            deserialize(in, value);
+            arr.pushBack(value);
+        }
+
+        in.close();
+    }
 };
-
-
 
 #endif //SMARTARRAY_H
