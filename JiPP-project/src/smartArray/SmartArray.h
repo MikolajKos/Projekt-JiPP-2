@@ -30,6 +30,15 @@ public:
         data_ = new T[capacity_];
     }
 
+    SmartArray(const SmartArray& other) {
+        capacity_ = other.capacity_;
+        size_ = other.size_;
+        data_ = new T[capacity_];
+        for (int i = 0; i < size_; ++i) {
+            data_[i] = other.data_[i];
+        }
+    }
+
     SmartArray(unsigned size, T elem) : size_(size), capacity_(size) {
         data_ = new T[capacity_];
         for (unsigned i = 0; i < size_; ++i) {
@@ -68,7 +77,7 @@ public:
 
     void resize(unsigned size) {
         if (size > capacity_) {
-            reallocate(size);
+            reallocate(size);   
         }
         size_ = size;
     }
