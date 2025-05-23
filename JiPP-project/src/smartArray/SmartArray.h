@@ -50,7 +50,7 @@ public:
         delete[] data_;
     }
 
-    T at(unsigned index) {
+    T& at(unsigned index) {
         if (index >= size_) {
             throw std::out_of_range("Index out of range");
         }
@@ -76,23 +76,43 @@ public:
     }
 
     void resize(unsigned size) {
-        if (size > capacity_) {
-            reallocate(size);   
+        if (size < size_) {
+            for (unsigned i = size; i < size_; ++i) {
+                data_[i].~T();
+            }
+        }
+        else {
+            if (size > capacity_) {
+                reallocate(size);
+            }
+            for (unsigned i = size_; i < size; ++i) {
+                data_[i] = T(); // init with default vlues
+            }
         }
         size_ = size;
     }
 
     void resize(unsigned size, T elem) {
-        if (size > capacity_) {
-            reallocate(size);
+        if (size < size_) {
+            for (unsigned i = size; i < size_; ++i) {
+                data_[i].~T();
+            }
         }
-        for (unsigned i = size_; i < size; ++i) {
-            data_[i] = elem;
+        else {
+            if (size > capacity_) {
+                reallocate(size);
+            }
+            for (unsigned i = size_; i < size; ++i) {
+                data_[i] = elem; // init with T elem values
+            }
         }
         size_ = size;
     }
 
     void clear() {
+        for (unsigned i = 0; i < size_; ++i) {
+            data_[i].~T();
+        }
         size_ = 0;
     }
 
@@ -125,7 +145,7 @@ public:
             throw std::out_of_range("Index out of range");
         }
         if (index + amount > size_) {
-            amount = size_ - index;
+            throw std::out_of_range("Amount goes beyond array size");
         }
         for (unsigned i = index; i < size_ - amount; ++i) {
             data_[i] = std::move(data_[i + amount]);
@@ -141,7 +161,10 @@ public:
     }
 
     void popBack() {
-        --size_;
+        if (size_ > 0) {
+            data_[size_ - 1].~T();
+            --size_;
+        }
     }
 
     bool operator==(const SmartArray& other) const {
@@ -169,7 +192,7 @@ public:
         }
         return data_[index];
     }
-
+    
     template <typename T>
     void saveToFile(const SmartArray<T>& arr, const std::string& filename) {
         std::ofstream out(filename, std::ios::binary);

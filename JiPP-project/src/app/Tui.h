@@ -6,11 +6,9 @@
 using namespace ftxui;
 
 class Tui {
-	//DOXYGEN
 
 	ScreenInteractive screen = ScreenInteractive::Fullscreen();
 	std::vector<std::string> menuEntries = {
-		"Show hello world",
 		"Add student",
 		"Delete student",
 		"Edit student",
@@ -23,7 +21,6 @@ class Tui {
 
 	enum ActiveScreen {
 		MenuScreen = -1,
-		HelloWordldScreen = 0,
 		ShowInput,
 		DeleteStudent,
 		EditStudent,
@@ -37,7 +34,6 @@ class Tui {
 	ActiveScreen activeScreen = MenuScreen;
 
 	void showMenu();
-	void showHelloWorldScreen();
 	void showInputScreen();
 	Color inputBgColor(bool isValid);
 	void showAllStudentsScreen();

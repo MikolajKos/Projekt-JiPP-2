@@ -44,3 +44,5 @@ target_link_libraries(JiPP_project_app
     ftxui::dom
     ftxui::component
 )
+
+add_subdirectory(tests)

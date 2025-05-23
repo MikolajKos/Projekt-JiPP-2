@@ -18,6 +18,8 @@ public:
 
     Student() : name(""), lastName(""), age(0), indexNumber(0), finalGrade(0.0) {}
 
+    ~Student() { /* Brak dynamicznej pamiêci do zwolnienia */ };
+
     std::string printStudent() const {
         return "\nName: " + name + "\n" + 
             "Last Name: " + lastName + "\n" + 

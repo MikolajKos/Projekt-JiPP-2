@@ -16,20 +16,6 @@ void Tui::showMenu()
 	activeScreen = static_cast<ActiveScreen>(selectedOption);
 }
 
-void Tui::showHelloWorldScreen()
-{
-	Component backButton = Button("Back", screen.ExitLoopClosure());
-	Component renderer = Renderer(backButton, [&] {
-		return vbox({
-			text("Hello World") | color(Color::Blue) | bgcolor(Color::Green),
-			hbox({filler(), backButton->Render(), filler()}) | bgcolor(Color::Green)
-		});
-	});
-
-	screen.Loop(renderer);
-	activeScreen = MenuScreen;
-}
-
 void Tui::showInputScreen()
 {
     Component backButton = Button("Back", screen.ExitLoopClosure());
@@ -273,7 +259,7 @@ void Tui::editStudentScreen()
     // Final grade input validation
     gradeOption.on_change = [&] {
         try {
-            if (!gradeStr.empty()) { // Validate only if the grade is provided
+            if (!gradeStr.empty()) {
                 finalGrade = std::stod(gradeStr);
                 gradeValid = true;
             }
@@ -307,14 +293,20 @@ void Tui::editStudentScreen()
         if (indexValid) {
             // Search for the student
             for (unsigned i = 0; i < smartArray.size(); ++i) {
-                if (smartArray[i].indexNumber == indexNumber) {
-                    // Student found, update their data
-                    smartArray[i].name = name.empty() ? smartArray[i].name : name;
-                    smartArray[i].lastName = lastname.empty() ? smartArray[i].lastName : lastname;
-                    if (!ageStr.empty()) smartArray[i].age = age; // Only update if age is provided
-                    if (!gradeStr.empty()) smartArray[i].finalGrade = finalGrade; // Only update if grade is provided
+                try {
+                    Student& student = smartArray.at(i);
+                    if (student.indexNumber == indexNumber) {
+                        // Student found, update their data
+                        if (!name.empty()) student.name = name;
+                        if (!lastname.empty()) student.lastName = lastname;
+                        if (!ageStr.empty()) student.age = age;
+                        if (!gradeStr.empty()) student.finalGrade = finalGrade;
 
-                    studentFound = true;
+                        studentFound = true;
+                        break;
+                    }
+                }
+                catch (const std::out_of_range&) {
                     break;
                 }
             }
@@ -519,9 +511,6 @@ void Tui::run()
 		{
 		case Tui::MenuScreen:
 			showMenu();
-			break;
-		case Tui::HelloWordldScreen:
-			showHelloWorldScreen();
 			break;
 		case Tui::ShowInput:
 			showInputScreen();
